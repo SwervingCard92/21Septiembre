@@ -1,0 +1,263 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hola, te amote ❤️</title>
+<style>
+/*Buenas, gente curiosa, ánimo*/
+  :root{
+    --font: system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial, sans-serif;
+    --text:#263238; --accent:#ffc107; --ring: rgba(255,193,7,.35);
+    --bg-url: url('fondo.png'); 
+    --popover-maxw: 34rem;
+    --hotspot-margin: 72px;   
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:var(--font); color:var(--text); overflow-x:hidden;
+  }
+  .bg {
+    position:fixed; inset:0; z-index:-2;
+    background-image: var(--bg-url);
+    background-size: cover;        
+    background-position: 50% 50%;
+    filter: saturate(1.02);
+    will-change: background-position, transform;
+    animation: pan 60s ease-in-out infinite alternate; 
+  }
+  .bg::after{ 
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(1200px 1200px at 20% 10%, rgba(255,193,7,.10), transparent 60%),
+                linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.10));
+    pointer-events:none;
+  }
+  @keyframes pan{
+    0%  { background-position: 45% 40% }
+    100%{ background-position: 55% 60% }
+  }
+
+  header{
+    position:fixed; top:12px; left:0; right:0; z-index:5;
+    display:flex; justify-content:center; padding:0 16px; pointer-events:none;
+  }
+  .title{
+    pointer-events:auto; background:#fff; border:1px solid rgba(0,0,0,.08);
+    border-radius:999px; padding:10px 14px; font-weight:700;
+    box-shadow:0 6px 16px rgba(0,0,0,.12);
+  }
+
+  main{ min-height:100svh; display:grid; place-items:center; padding:clamp(16px,4vw,48px) }
+  .scene{ position:relative; display:grid; place-items:center; width:min(92vw, 980px) }
+
+  .photo{
+    position:relative; perspective:900px;
+    filter: drop-shadow(0 16px 36px rgba(0,0,0,.18));
+    animation: float 8s ease-in-out infinite;
+    will-change: transform;
+  }
+  .photo img{
+    display:block; width:min(70vw, 560px); height:auto; object-fit:contain;
+    transform-origin:center; user-select:none; -webkit-user-drag:none;
+    animation: ken 18s ease-in-out infinite;
+  }
+  @keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes ken{ 0%,100%{transform:scale(1) rotate(0.0001deg)} 50%{transform:scale(1.025) rotate(0.0001deg)} }
+
+  .hotspot-layer{ position:absolute; inset:0; display:block; pointer-events:none; }
+  .hotspot{
+    position:absolute; width:34px; height:34px; border-radius:999px;
+    background:#fff; color:#111; display:grid; place-items:center;
+    font-size:18px; line-height:1; cursor:pointer; border:none; pointer-events:auto;
+    box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--ring), 0 10px 20px rgba(0,0,0,.12);
+    transform: translate(-50%,-50%); transition: transform .18s ease;
+  }
+  .hotspot:hover{ transform: translate(-50%,-50%) scale(1.06) }
+  .hotspot:focus-visible{ outline:2px solid var(--accent); outline-offset:3px }
+
+  .popover{
+    position:absolute; left:50%; top:0; transform:translate(-50%,-10px);
+    max-width:var(--popover-maxw); background:#fff; border:1px solid rgba(0,0,0,.08);
+    border-radius:14px; box-shadow:0 20px 40px rgba(0,0,0,.18);
+    padding:14px 16px; z-index:5; display:none;
+  }
+  .popover[data-open="true"]{ display:block }
+  .popover .title{ font-weight:700; margin:0 0 6px }
+  .popover .content{ max-height:min(40vh,420px); overflow:auto }
+  .popover .close{ position:absolute; top:6px; right:8px; border:none; background:transparent; cursor:pointer; font-size:20px; color:#777 }
+/*alguien sabe que hice????*/
+  .scrim{ position:fixed; inset:0; background:rgba(0,0,0,.45); opacity:0; pointer-events:none; transition:opacity .25s; z-index:9 }
+  .scrim[data-open="true"]{ opacity:1; pointer-events:auto }
+  .mobile{ position:fixed; left:0; right:0; bottom:0; background:#fff; z-index:10;
+           border-top-left-radius:16px; border-top-right-radius:16px;
+           max-height:65vh; transform:translateY(110%); transition:.3s ease transform; }
+  .mobile[data-open="true"]{ transform:translateY(0%) }
+  .mobile .grab{ width:48px; height:5px; background:#ccc; border-radius:6px; margin:8px auto }
+  .mobile .inner{ padding:8px 16px 18px; overflow:auto; max-height:calc(65vh - 24px) }
+  .popover .content,
+  .mobile .content { white-space: pre-line; }
+    
+  @media (prefers-reduced-motion:reduce){
+    .bg { animation:none !important; transform:none !important }
+    .photo, .photo img{ animation:none !important }
+  }
+
+  
+</style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <header><div class="title">Feliz Día de la Primavera mi amor. ❤️</div></header>
+
+  <main>
+    <section class="scene" aria-label="florecitas">
+      <div class="photo" id="photo">
+        <img id="flowerImg" src="florfloral.png" alt="Arreglo de girasoles en maceta negra" loading="eager">
+        <div class="hotspot-layer" id="hsLayer" aria-hidden="false"></div>
+      </div>
+
+      <aside class="popover" id="popover" role="dialog" aria-modal="false" aria-live="polite">
+        <button class="close" aria-label="Cerrar">×</button>
+        <h3 class="title"></h3>
+        <div class="content"></div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <section class="mobile" id="mobile" aria-hidden="true" aria-label="Detalle">
+    <div class="grab" aria-hidden="true"></div>
+    <div class="inner">
+      <h3 class="title"></h3>
+      <div class="content"></div>
+    </div>
+  </section>
+
+<script>
+
+const HOTSPOTS = [
+  { x:0.18, y:0.24, icon:"💌", title:"Te amo ❤️", text:"Estar contigo o no estar contigo es la medida de mi tiempo. \nBorges, J. L. (1972)" },
+  { x:0.78, y:0.22, icon:"👑", title:"Te adoro ❤️", text:"Poco a poco a poquito me fui enamorando\nNo pude evitarlo, yo te quiero tanto\nPero tanto y tanto, tú bien sabes cuánto\nEso y otro tanto te quiero decir\nQue ya no vivo por vivir.\nAguilera Valadez, A. (2015)" },
+  { x:0.16, y:0.68, icon:"🌻", title:"Te quiero ❤️", text:"Si te quiero es porque sos mi amor, mi cómplice y todo; y en la calle, codo a codo, somos mucho más que dos. \nBenedetti, M. (1974)." },
+  { x:0.82, y:0.70, icon:"☀️", title:"Te añoro ❤️", text:"No existe un momento del día\nEn que pueda apartarme de ti\nEl mundo parece distinto\nCuando no estás junto a mi\nPortillo de la Luz, C. (1946)" },
+  { x:0.50, y:0.92, icon:"🌊", title:"Te extraño ❤️", text:"La memoria del corazón elimina los malos recuerdos y magnifica los buenos… \nGarcía Márquez, G. (1985)." },
+];
+
+const img = document.getElementById('flowerImg');
+const layer = document.getElementById('hsLayer');
+const pop = document.getElementById('popover');
+const popTitle = pop.querySelector('.title');
+const popContent = pop.querySelector('.content');
+const popClose = pop.querySelector('.close');
+const scrim = document.getElementById('scrim');
+const mobile = document.getElementById('mobile');
+const mobileTitle = mobile.querySelector('.title');
+const mobileContent = mobile.querySelector('.content');
+
+function layoutHotspots(){
+  layer.innerHTML = "";
+  const rImg  = img.getBoundingClientRect();
+  const rHost = layer.getBoundingClientRect();
+
+  const dx = rImg.left - rHost.left;
+  const dy = rImg.top  - rHost.top;
+  const w  = rImg.width, h = rImg.height;
+
+  const cx = dx + w/2, cy = dy + h/2; 
+  const margin = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hotspot-margin')) || 72;
+
+  HOTSPOTS.forEach(hs=>{
+    const btn = document.createElement('button');
+    btn.className = 'hotspot'; btn.type = 'button';
+    btn.dataset.title = hs.title; btn.dataset.text = hs.text;
+    btn.setAttribute('aria-expanded','false'); btn.textContent = hs.icon;
+    const px = dx + hs.x * w;
+    const py = dy + hs.y * h;
+    let vx = px - cx, vy = py - cy;
+    const len = Math.hypot(vx, vy) || 1; 
+    vx /= len; vy /= len;
+    const fx = px + vx * margin;
+    const fy = py + vy * margin;
+
+    btn.style.left = fx + 'px';
+    btn.style.top  = fy + 'px';
+
+    btn.addEventListener('click', ()=>openInfo(btn));
+    btn.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openInfo(btn); }
+    });
+
+    layer.appendChild(btn);
+  });
+}
+
+function isMobile(){ return matchMedia('(max-width:700px)').matches; }
+
+function openInfo(btn){
+  const title = btn.dataset.title || 'Detalle';
+  const text  = btn.dataset.text  || '';
+
+  document.querySelectorAll('.hotspot[aria-expanded="true"]').forEach(b=>b.setAttribute('aria-expanded','false'));
+  btn.setAttribute('aria-expanded','true');
+
+  const b = btn.getBoundingClientRect();
+  const host = layer.getBoundingClientRect();
+  const x = b.left + b.width/2 - host.left;
+  const y = b.top  - host.top - 12;
+
+  if(isMobile()){
+    mobileTitle.textContent = title;
+    mobileContent.textContent = text;
+    mobile.setAttribute('data-open','true'); mobile.setAttribute('aria-hidden','false');
+    scrim.hidden = false; scrim.setAttribute('data-open','true');
+  }else{
+    popTitle.textContent = title;
+    popContent.textContent = text;
+    pop.style.left = x + 'px'; pop.style.top = y + 'px';
+    pop.setAttribute('data-open','true');
+  }
+  /*Poñoñoñin*/
+}
+function closeInfo(){
+  pop.removeAttribute('data-open');
+  mobile.setAttribute('data-open','false'); mobile.setAttribute('aria-hidden','true');
+  scrim.removeAttribute('data-open'); setTimeout(()=>scrim.hidden=true, 250);
+  document.querySelectorAll('.hotspot[aria-expanded="true"]').forEach(b=>b.setAttribute('aria-expanded','false'));
+}
+popClose.addEventListener('click', closeInfo);
+scrim.addEventListener('click', closeInfo);
+window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeInfo(); });
+
+if(img.complete){ layoutHotspots(); } else { img.addEventListener('load', layoutHotspots); }
+window.addEventListener('resize', layoutHotspots);
+const photo = document.getElementById('photo');
+let rafId = null;
+photo.addEventListener('mousemove', (e)=>{
+  const r = photo.getBoundingClientRect();
+  const cx = r.left + r.width/2, cy = r.top + r.height/2;
+  const dx = (e.clientX - cx) / (r.width/2);
+  const dy = (e.clientY - cy) / (r.height/2);
+  const rotX = (+dy) * 4, rotY = (-dx) * 4;
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(()=>{ photo.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`; });
+});
+photo.addEventListener('mouseleave', ()=>{
+  cancelAnimationFrame(rafId); photo.style.transform = `rotateX(0deg) rotateY(0deg)`;
+});
+const bg = document.querySelector('.bg');
+window.addEventListener('scroll', ()=>{
+  const y = window.scrollY || 0;
+  bg.style.transform = `translateY(${y * 0.03}px)`;
+}, {passive:true});
+window.addEventListener('mousemove', (e)=>{
+  const x = (e.clientX / innerWidth - .5) * 4;   
+  const y = (e.clientY / innerHeight - .5) * 4;  
+  bg.style.backgroundPosition = `${50 + x}% ${50 + y}%`;
+}, {passive:true});
+/*hasta aquí llega la curiosidad y el gato*/
+</script>
+</body>
+</html>
